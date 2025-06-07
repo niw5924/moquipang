@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
 
 class MosquitoGame extends FlameGame
     with TapCallbacks, HasGameReference<MosquitoGame> {
@@ -12,9 +13,16 @@ class MosquitoGame extends FlameGame
   Future<void> onLoad() async {
     await super.onLoad();
 
-    // ✅ 전체화면 사이즈 프린트
-    print('📱 전체화면 사이즈: ${size.x} x ${size.y}');
+    final bgSprite = await Sprite.load('background.png');
+    final bg = SpriteComponent(
+      sprite: bgSprite,
+      size: size,
+      position: Vector2.zero(),
+      priority: -1,
+    );
+    add(bg);
 
+    print('📱 전체화면 사이즈: ${size.x} x ${size.y}');
     for (int i = 0; i < mosquitoCount; i++) {
       final mosquito = await _createRandomMosquito();
       print('🦟 ${i + 1}번 모기 위치: ${mosquito.position}');
@@ -45,8 +53,8 @@ class MosquitoComponent extends SpriteComponent
 
   @override
   void onTapDown(TapDownEvent event) {
-    // ✅ 클릭 시 위치 프린트
     print('🦟 모기 클릭! 위치: $position');
+    FlameAudio.play('squish_pop.mp3');
     removeFromParent();
   }
 }
