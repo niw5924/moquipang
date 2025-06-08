@@ -23,6 +23,7 @@ class MosquitoGame extends FlameGame
     add(bg);
 
     print('📱 전체화면 사이즈: ${size.x} x ${size.y}');
+
     for (int i = 0; i < mosquitoCount; i++) {
       final mosquito = await _createRandomMosquito();
       print('🦟 ${i + 1}번 모기 위치: ${mosquito.position}');
@@ -45,11 +46,30 @@ class MosquitoGame extends FlameGame
 
 class MosquitoComponent extends SpriteComponent
     with TapCallbacks, HasGameReference<MosquitoGame> {
+  late Vector2 velocity;
+
   MosquitoComponent({
     required Sprite sprite,
     required Vector2 size,
     required Vector2 position,
-  }) : super(sprite: sprite, size: size, position: position);
+  }) : super(sprite: sprite, size: size, position: position) {
+    final speed = 100.0;
+    final angle = Random().nextDouble() * 2 * pi;
+    velocity = Vector2(cos(angle), sin(angle)) * speed;
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    position += velocity * dt;
+
+    if (position.x <= 0 || position.x + size.x >= game.size.x) {
+      velocity.x = -velocity.x;
+    }
+    if (position.y <= 0 || position.y + size.y >= game.size.y) {
+      velocity.y = -velocity.y;
+    }
+  }
 
   @override
   void onTapDown(TapDownEvent event) {
