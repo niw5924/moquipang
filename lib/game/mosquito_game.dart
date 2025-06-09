@@ -3,16 +3,20 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'difficulty.dart';
 
 class MosquitoGame extends FlameGame
     with TapCallbacks, HasGameReference<MosquitoGame> {
+  final Difficulty difficulty;
   final int mosquitoCount = 5;
   final Random _random = Random();
+
+  MosquitoGame({required this.difficulty});
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-
+    FlameAudio.bgm.play('bgm.mp3', volume: 0.6);
     final bgSprite = await Sprite.load('background.png');
     final bg = SpriteComponent(
       sprite: bgSprite,
@@ -21,9 +25,7 @@ class MosquitoGame extends FlameGame
       priority: -1,
     );
     add(bg);
-
     print('📱 전체화면 사이즈: ${size.x} x ${size.y}');
-
     for (int i = 0; i < mosquitoCount; i++) {
       final mosquito = await _createRandomMosquito();
       print('🦟 ${i + 1}번 모기 위치: ${mosquito.position}');
@@ -40,7 +42,14 @@ class MosquitoGame extends FlameGame
       sprite: sprite,
       size: mosquitoSize,
       position: Vector2(x, y),
+      speed: difficulty.speed,
     );
+  }
+
+  @override
+  void onRemove() {
+    FlameAudio.bgm.stop();
+    super.onRemove();
   }
 }
 
@@ -52,8 +61,8 @@ class MosquitoComponent extends SpriteComponent
     required Sprite sprite,
     required Vector2 size,
     required Vector2 position,
+    required double speed,
   }) : super(sprite: sprite, size: size, position: position) {
-    final speed = 100.0;
     final angle = Random().nextDouble() * 2 * pi;
     velocity = Vector2(cos(angle), sin(angle)) * speed;
   }
@@ -62,7 +71,6 @@ class MosquitoComponent extends SpriteComponent
   void update(double dt) {
     super.update(dt);
     position += velocity * dt;
-
     if (position.x <= 0 || position.x + size.x >= game.size.x) {
       velocity.x = -velocity.x;
     }
