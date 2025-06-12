@@ -1,4 +1,4 @@
-package com.example.moquipang
+package com.niw.moquipang
 
 import io.flutter.embedding.android.FlutterActivity
 
