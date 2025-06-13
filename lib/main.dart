@@ -1,8 +1,8 @@
-import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/material.dart';
-import 'package:flame/game.dart';
+import 'package:flame_audio/flame_audio.dart';
+import 'models/difficulty.dart';
 import 'game/mosquito_game.dart';
-import 'game/difficulty.dart';
+import 'pages/game_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,7 +29,6 @@ class DifficultySelectPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 게임 타이틀
                 Text(
                   '모퀴팡',
                   style: TextStyle(
@@ -43,20 +42,19 @@ class DifficultySelectPage extends StatelessWidget {
                     shadows: [
                       Shadow(
                         offset: Offset(0, 4),
-                        blurRadius: 10.0,
-                        color: Colors.black.withValues(alpha: 0.5),
+                        blurRadius: 10,
+                        color: Colors.black.withAlpha(100),
                       ),
                       Shadow(
                         offset: Offset(0, 0),
-                        blurRadius: 6.0,
-                        color: Color(0xFFB9F6CA).withValues(alpha: 0.5),
+                        blurRadius: 6,
+                        color: Color(0xFFB9F6CA).withAlpha(100),
                       ),
                     ],
                     letterSpacing: 4,
                   ),
                 ),
                 const SizedBox(height: 40),
-                // 난이도 버튼
                 ...Difficulty.values.map((difficulty) {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12.0),
@@ -87,7 +85,7 @@ class DifficultySelectPage extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder:
-                                (_) => GameWidget(
+                                (_) => GamePage(
                                   game: MosquitoGame(difficulty: difficulty),
                                 ),
                           ),
