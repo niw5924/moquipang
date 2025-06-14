@@ -10,15 +10,12 @@ class MosquitoGame extends FlameGame
   final Difficulty difficulty;
   final int mosquitoCount = 5;
   final Random _random = Random();
-  bool isBgmPlaying = true;
-  late SoundToggleButton soundToggleButton;
 
   MosquitoGame({required this.difficulty});
 
   @override
   Future<void> onLoad() async {
     await super.onLoad();
-    FlameAudio.bgm.play('bgm.mp3', volume: 0.6);
 
     final bgSprite = await Sprite.load('background.png');
     add(
@@ -31,12 +28,11 @@ class MosquitoGame extends FlameGame
     );
 
     for (int i = 0; i < mosquitoCount; i++) {
-      final mosquito = await _createRandomMosquito();
-      add(mosquito);
+      add(await _createRandomMosquito());
     }
 
-    soundToggleButton = SoundToggleButton(position: Vector2(size.x - 56, 16));
-    add(soundToggleButton);
+    add(SoundToggleButton(position: Vector2(size.x - (40 + 16), 16)));
+    add(TimerTextComponent(position: Vector2(16, 16)));
   }
 
   Future<MosquitoComponent> _createRandomMosquito() async {
@@ -52,18 +48,9 @@ class MosquitoGame extends FlameGame
     );
   }
 
-  void toggleBgm() {
-    if (isBgmPlaying) {
-      FlameAudio.bgm.pause();
-    } else {
-      FlameAudio.bgm.resume();
-    }
-    isBgmPlaying = !isBgmPlaying;
-    soundToggleButton.updateIcon(isBgmPlaying);
-  }
-
   @override
   void onRemove() {
+    // BGM은 싱글톤 외부 리소스이므로 여기서 명시적으로 정리해야 함(모기 등 일반 컴포넌트와 다름)
     FlameAudio.bgm.stop();
     super.onRemove();
   }
@@ -78,7 +65,7 @@ class MosquitoComponent extends SpriteComponent
     required Vector2 size,
     required Vector2 position,
     required double speed,
-    super.priority = 2,
+    super.priority = 10,
   }) : super(sprite: sprite, size: size, position: position) {
     final angle = Random().nextDouble() * 2 * pi;
     velocity = Vector2(cos(angle), sin(angle)) * speed;
@@ -105,25 +92,64 @@ class MosquitoComponent extends SpriteComponent
 
 class SoundToggleButton extends SpriteComponent
     with TapCallbacks, HasGameReference<MosquitoGame> {
-  SoundToggleButton({required Vector2 position, super.priority = 1})
-    : super(size: Vector2.all(40), position: position);
-
   late Sprite soundOnSprite;
   late Sprite soundOffSprite;
+  bool isSoundOn = true;
+
+  SoundToggleButton({required Vector2 position, super.priority = 2})
+    : super(size: Vector2.all(40), position: position);
 
   @override
   Future<void> onLoad() async {
     soundOnSprite = await Sprite.load('sound_on_icon.png');
     soundOffSprite = await Sprite.load('sound_off_icon.png');
-    sprite = game.isBgmPlaying ? soundOnSprite : soundOffSprite;
+    sprite = soundOnSprite;
   }
 
-  void updateIcon(bool isPlaying) {
-    sprite = isPlaying ? soundOnSprite : soundOffSprite;
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    final mosquitoes = game.children.whereType<MosquitoComponent>();
+
+    if (isSoundOn && mosquitoes.isNotEmpty) {
+      if (!FlameAudio.bgm.isPlaying) {
+        FlameAudio.bgm.play('bgm.mp3', volume: 0.6);
+      }
+    } else {
+      if (FlameAudio.bgm.isPlaying) {
+        FlameAudio.bgm.stop();
+      }
+    }
   }
 
   @override
   void onTapDown(TapDownEvent event) {
-    game.toggleBgm();
+    isSoundOn = !isSoundOn;
+    sprite = isSoundOn ? soundOnSprite : soundOffSprite;
+  }
+}
+
+class TimerTextComponent extends TextComponent
+    with HasGameReference<MosquitoGame> {
+  double _elapsedTime = 0.0;
+
+  TimerTextComponent({required Vector2 position})
+    : super(
+        position: position,
+        priority: 1,
+        text: '0.0s',
+        anchor: Anchor.topLeft,
+      );
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    final mosquitoes = game.children.whereType<MosquitoComponent>();
+    if (mosquitoes.isEmpty) return;
+
+    _elapsedTime += dt;
+    text = '${_elapsedTime.toStringAsFixed(1)}s';
   }
 }
