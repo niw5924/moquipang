@@ -8,7 +8,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlameAudio.audioCache.loadAll(['bgm.mp3', 'squish_pop.mp3']);
   FlameAudio.bgm.initialize();
-  runApp(const MaterialApp(home: DifficultySelectPage()));
+  runApp(
+    MaterialApp(
+      builder: (context, child) => SafeArea(child: child!),
+      home: const DifficultySelectPage(),
+    ),
+  );
 }
 
 class DifficultySelectPage extends StatelessWidget {
