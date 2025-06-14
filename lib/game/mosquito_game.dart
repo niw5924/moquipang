@@ -10,6 +10,8 @@ class MosquitoGame extends FlameGame
   final Difficulty difficulty;
   final int mosquitoCount = 5;
   final Random _random = Random();
+  bool isBgmPlaying = true;
+  late SoundToggleButton soundToggleButton;
 
   MosquitoGame({required this.difficulty});
 
@@ -17,18 +19,24 @@ class MosquitoGame extends FlameGame
   Future<void> onLoad() async {
     await super.onLoad();
     FlameAudio.bgm.play('bgm.mp3', volume: 0.6);
+
     final bgSprite = await Sprite.load('background.png');
-    final bg = SpriteComponent(
-      sprite: bgSprite,
-      size: size,
-      position: Vector2.zero(),
-      priority: -1,
+    add(
+      SpriteComponent(
+        sprite: bgSprite,
+        size: size,
+        position: Vector2.zero(),
+        priority: 0,
+      ),
     );
-    add(bg);
+
     for (int i = 0; i < mosquitoCount; i++) {
       final mosquito = await _createRandomMosquito();
       add(mosquito);
     }
+
+    soundToggleButton = SoundToggleButton(position: Vector2(size.x - 56, 16));
+    add(soundToggleButton);
   }
 
   Future<MosquitoComponent> _createRandomMosquito() async {
@@ -42,6 +50,16 @@ class MosquitoGame extends FlameGame
       position: Vector2(x, y),
       speed: difficulty.speed,
     );
+  }
+
+  void toggleBgm() {
+    if (isBgmPlaying) {
+      FlameAudio.bgm.pause();
+    } else {
+      FlameAudio.bgm.resume();
+    }
+    isBgmPlaying = !isBgmPlaying;
+    soundToggleButton.updateIcon(isBgmPlaying);
   }
 
   @override
@@ -60,6 +78,7 @@ class MosquitoComponent extends SpriteComponent
     required Vector2 size,
     required Vector2 position,
     required double speed,
+    super.priority = 2,
   }) : super(sprite: sprite, size: size, position: position) {
     final angle = Random().nextDouble() * 2 * pi;
     velocity = Vector2(cos(angle), sin(angle)) * speed;
@@ -81,5 +100,30 @@ class MosquitoComponent extends SpriteComponent
   void onTapDown(TapDownEvent event) {
     FlameAudio.play('squish_pop.mp3');
     removeFromParent();
+  }
+}
+
+class SoundToggleButton extends SpriteComponent
+    with TapCallbacks, HasGameReference<MosquitoGame> {
+  SoundToggleButton({required Vector2 position, super.priority = 1})
+    : super(size: Vector2.all(40), position: position);
+
+  late Sprite soundOnSprite;
+  late Sprite soundOffSprite;
+
+  @override
+  Future<void> onLoad() async {
+    soundOnSprite = await Sprite.load('sound_on_icon.png');
+    soundOffSprite = await Sprite.load('sound_off_icon.png');
+    sprite = game.isBgmPlaying ? soundOnSprite : soundOffSprite;
+  }
+
+  void updateIcon(bool isPlaying) {
+    sprite = isPlaying ? soundOnSprite : soundOffSprite;
+  }
+
+  @override
+  void onTapDown(TapDownEvent event) {
+    game.toggleBgm();
   }
 }
