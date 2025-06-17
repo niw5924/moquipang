@@ -33,6 +33,7 @@ class MosquitoGame extends FlameGame
 
     add(SoundToggleButton(position: Vector2(size.x - (40 + 16), 16)));
     add(TimerTextComponent(position: Vector2(16, 16)));
+    add(RestartButtonComponent(position: size / 2));
   }
 
   Future<MosquitoComponent> _createRandomMosquito() async {
@@ -151,5 +152,20 @@ class TimerTextComponent extends TextComponent
 
     _elapsedTime += dt;
     text = '${_elapsedTime.toStringAsFixed(1)}s';
+  }
+}
+
+class RestartButtonComponent extends SpriteComponent {
+  RestartButtonComponent({required Vector2 position})
+    : super(
+        size: Vector2.all(64),
+        position: position,
+        anchor: Anchor.center,
+        priority: 20,
+      );
+
+  @override
+  Future<void> onLoad() async {
+    sprite = await Sprite.load('restart_icon.png');
   }
 }
