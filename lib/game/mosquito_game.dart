@@ -32,16 +32,16 @@ class MosquitoGame extends FlameGame
     }
 
     add(SoundToggleButton(position: Vector2(size.x - (40 + 16), 16)));
-    add(TimerTextComponent(position: Vector2(16, 16)));
-    add(RestartButtonComponent(position: size / 2));
+    add(TimerText(position: Vector2(16, 16)));
+    add(RestartButton(position: size / 2));
   }
 
-  Future<MosquitoComponent> _createRandomMosquito() async {
+  Future<Mosquito> _createRandomMosquito() async {
     final sprite = await Sprite.load('mosquito.png');
     final mosquitoSize = Vector2(60, 60);
     final x = _random.nextDouble() * (size.x - mosquitoSize.x);
     final y = _random.nextDouble() * (size.y - mosquitoSize.y);
-    return MosquitoComponent(
+    return Mosquito(
       sprite: sprite,
       size: mosquitoSize,
       position: Vector2(x, y),
@@ -51,17 +51,17 @@ class MosquitoGame extends FlameGame
 
   @override
   void onRemove() {
-    // BGM은 싱글톤 외부 리소스이므로 여기서 명시적으로 정리해야 함(모기 등 일반 컴포넌트와 다름)
+    /// BGM은 싱글톤 외부 리소스이므로 여기서 명시적으로 정리해야 함(모기 등 일반 컴포넌트와 다름)
     FlameAudio.bgm.stop();
     super.onRemove();
   }
 }
 
-class MosquitoComponent extends SpriteComponent
+class Mosquito extends SpriteComponent
     with TapCallbacks, HasGameReference<MosquitoGame> {
   late Vector2 velocity;
 
-  MosquitoComponent({
+  Mosquito({
     required Sprite sprite,
     required Vector2 size,
     required Vector2 position,
@@ -111,8 +111,7 @@ class SoundToggleButton extends SpriteComponent
   void update(double dt) {
     super.update(dt);
 
-    final mosquitoes = game.children.whereType<MosquitoComponent>();
-
+    final mosquitoes = game.children.whereType<Mosquito>();
     if (isSoundOn && mosquitoes.isNotEmpty) {
       if (!FlameAudio.bgm.isPlaying) {
         FlameAudio.bgm.play('bgm.mp3', volume: 0.6);
@@ -131,11 +130,10 @@ class SoundToggleButton extends SpriteComponent
   }
 }
 
-class TimerTextComponent extends TextComponent
-    with HasGameReference<MosquitoGame> {
+class TimerText extends TextComponent with HasGameReference<MosquitoGame> {
   double _elapsedTime = 0.0;
 
-  TimerTextComponent({required Vector2 position})
+  TimerText({required Vector2 position})
     : super(
         position: position,
         priority: 1,
@@ -147,7 +145,7 @@ class TimerTextComponent extends TextComponent
   void update(double dt) {
     super.update(dt);
 
-    final mosquitoes = game.children.whereType<MosquitoComponent>();
+    final mosquitoes = game.children.whereType<Mosquito>();
     if (mosquitoes.isEmpty) return;
 
     _elapsedTime += dt;
@@ -155,8 +153,9 @@ class TimerTextComponent extends TextComponent
   }
 }
 
-class RestartButtonComponent extends SpriteComponent {
-  RestartButtonComponent({required Vector2 position})
+class RestartButton extends SpriteComponent
+    with HasGameReference<MosquitoGame>, HasVisibility {
+  RestartButton({required Vector2 position})
     : super(
         size: Vector2.all(64),
         position: position,
@@ -167,5 +166,18 @@ class RestartButtonComponent extends SpriteComponent {
   @override
   Future<void> onLoad() async {
     sprite = await Sprite.load('restart_icon.png');
+    isVisible = false;
+  }
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+
+    if (isVisible) return;
+
+    final mosquitoes = game.children.whereType<Mosquito>();
+    if (mosquitoes.isEmpty) {
+      isVisible = true;
+    }
   }
 }
