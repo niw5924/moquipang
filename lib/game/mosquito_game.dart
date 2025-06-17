@@ -161,7 +161,7 @@ class RestartButtonComponent extends SpriteComponent {
         size: Vector2.all(64),
         position: position,
         anchor: Anchor.center,
-        priority: 20,
+        priority: 3,
       );
 
   @override
