@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'package:flutter/services.dart';
 import 'models/difficulty.dart';
 import 'game/mosquito_game.dart';
 import 'pages/game_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 화면을 정방향 세로로 고정
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
   await FlameAudio.audioCache.loadAll(['bgm.mp3', 'squish_pop.mp3']);
   FlameAudio.bgm.initialize();
   runApp(
