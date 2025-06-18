@@ -21,6 +21,9 @@ class DifficultySelectPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -59,10 +62,12 @@ class DifficultySelectPage extends StatelessWidget {
                     letterSpacing: 4,
                   ),
                 ),
-                const SizedBox(height: 40),
+                SizedBox(height: screenHeight * 0.05),
                 ...Difficulty.values.map((difficulty) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.02,
+                    ),
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF3E2723).withAlpha(180),
@@ -71,9 +76,9 @@ class DifficultySelectPage extends StatelessWidget {
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 40,
-                          vertical: 18,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: screenWidth * 0.05,
+                          vertical: screenHeight * 0.02,
                         ),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
