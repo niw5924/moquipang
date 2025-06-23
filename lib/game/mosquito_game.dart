@@ -3,6 +3,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame_audio/flame_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/difficulty.dart';
 
 class MosquitoGame extends FlameGame
@@ -31,7 +32,7 @@ class MosquitoGame extends FlameGame
       add(await createRandomMosquito());
     }
 
-    add(BestTimeText(position: Vector2(16, 16)));
+    add(BestTimeText(position: Vector2(16, 16), difficulty: difficulty));
     add(TimerText(position: Vector2(16, 48)));
     add(SoundToggleButton(position: Vector2(size.x - (40 + 16), 16)));
     add(RestartButton(position: size / 2));
@@ -85,16 +86,26 @@ class Mosquito extends SpriteComponent
     }
   }
 
-  /// TODO: 베스트 타임 저장
   @override
-  void onTapDown(TapDownEvent event) {
+  void onTapDown(TapDownEvent event) async {
     FlameAudio.play('squish_pop.mp3');
+
+    final remaining = game.children.whereType<Mosquito>().length;
+    if (remaining == 1) {
+      final timerText = game.children.whereType<TimerText>().first;
+      final bestTimeText = game.children.whereType<BestTimeText>().first;
+      await bestTimeText.tryUpdateBestTime(timerText.elapsedTime);
+    }
+
     removeFromParent();
   }
 }
 
 class BestTimeText extends TextComponent with HasGameReference<MosquitoGame> {
-  BestTimeText({required Vector2 position})
+  final Difficulty difficulty;
+  double? _bestTime;
+
+  BestTimeText({required Vector2 position, required this.difficulty})
     : super(
         position: position,
         priority: 1,
@@ -102,11 +113,26 @@ class BestTimeText extends TextComponent with HasGameReference<MosquitoGame> {
         anchor: Anchor.topLeft,
       );
 
-  void setBestTime(double? time) {
-    if (time == null) {
-      text = '🏆 -';
-    } else {
-      text = '🏆 ${time.toStringAsFixed(1)}s';
+  String get _prefsKey => 'best_time_${difficulty.name}';
+
+  @override
+  Future<void> onLoad() async {
+    await super.onLoad();
+    final prefs = await SharedPreferences.getInstance();
+    _bestTime = prefs.getDouble(_prefsKey);
+    _updateText();
+  }
+
+  void _updateText() {
+    text = _bestTime == null ? '🏆 -' : '🏆 ${_bestTime!.toStringAsFixed(1)}s';
+  }
+
+  Future<void> tryUpdateBestTime(double newTime) async {
+    if (_bestTime == null || newTime < _bestTime!) {
+      _bestTime = newTime;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setDouble(_prefsKey, newTime);
+      _updateText();
     }
   }
 }
