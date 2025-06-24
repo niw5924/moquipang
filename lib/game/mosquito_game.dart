@@ -88,7 +88,10 @@ class Mosquito extends SpriteComponent
 
   @override
   void onTapDown(TapDownEvent event) async {
-    FlameAudio.play('squish_pop.mp3');
+    final soundToggle = game.children.whereType<SoundToggleButton>().first;
+    if (soundToggle.isSoundOn) {
+      FlameAudio.play('squish_pop.mp3');
+    }
 
     final remaining = game.children.whereType<Mosquito>().length;
     if (remaining == 1) {
