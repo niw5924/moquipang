@@ -1,16 +1,29 @@
-# moquipang
+# 모퀴팡 🦟
 
-A new Flutter project.
+**모퀴팡**은 날아다니는 모기를 터치해 제거하는 하이퍼 캐주얼 게임입니다.  
+사용자는 세 가지 난이도(쉬움, 중간, 어려움) 중 하나를 선택해 게임을 시작할 수 있으며,  
+난이도가 높아질수록 모기의 이동 속도가 빨라져 더 빠른 반응이 요구됩니다.
 
-## Getting Started
+모기를 모두 제거하면 걸린 시간이 측정되며, 이전 기록보다 빠를 경우 해당 난이도의 최고 기록으로 저장됩니다.  
+플레이 타임이 짧고 조작이 간단해 누구나 반복적으로 즐길 수 있도록 설계되었습니다.
 
-This project is a starting point for a Flutter application.
+🔗 **[Play 스토어](https://play.google.com/store/apps/details?id=com.niw.moquipang&hl=ko)**
 
-A few resources to get you started if this is your first Flutter project:
+## ⏳ 개발 기간
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- **2025년 6월 ~ 현재 (출시 중)**
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 📌 주요 기능
+
+✅ **난이도 선택 기능** - 쉬움, 중간, 어려움 중 선택하여 게임 플레이  
+✅ **난이도별 최고 기록 저장** - 모든 모기를 제거하는 데 걸린 시간을 기반으로 최고 기록 저장  
+✅ **게임 내 실시간 타이머 표시** - 현재까지의 경과 시간을 실시간으로 시각화  
+✅ **모기 이동 벡터 계산 및 반사 처리** - 벽에 닿으면 반사되는 커스텀 이동 로직
+
+## 🛠 Skills
+
+✅ **Flutter, Dart**  
+✅ **Flame Game Engine**  
+✅ **Flame Audio**  
+✅ **SharedPreferences**  
+✅ **Vector2 기반 커스텀 이동 로직**
